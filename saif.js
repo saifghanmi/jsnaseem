@@ -1,1 +1,3 @@
-console.log("successfully imported ");
+function logSuccess() {
+    console.log("successfully imported");
+}
