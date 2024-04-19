@@ -1,0 +1,751 @@
+/* Add custom Js code below */
+//-----------اعدادات عامة------------------
+
+//  الوقت لكل المدن
+var targetTime = new Date().setHours(23, 1, 0, 0);
+
+// منتجات عروض الشوكليت
+var chocolate = [
+ 1470798725,1585028642,135332613, 941938130, 1479523130, 97595232, 1395008344,
+  7144862953, 1508605779, 300534217, 569450598, 1408139462,
+];
+
+var books = [
+  1512174341, 406130818, 346650020, 1096901424, 1916358796, 661403671,
+  687306051, 500790672,
+];
+
+var perfume = [
+  892967635, 501556793, 525673446, 1441677857, 1198259321, 1056542639,
+  793391518, 1459603055, 1669663684,
+];
+
+var cards = [709307117,1387120126,161385238,1675671696, 397477779,906235291,1128030424,1625207820,1175408936,1028604926,1362060915,465542070,2048739394 ,396749069, 2019712040, 1409920152];
+
+var cakes = [ 1916449660,1359142500,932820282,813402393,629359229,1822562813,875009510, 846223010, 1911555198, 196700160];
+
+//تعديل وقت غلق مكة
+var meccatime = 16;
+//تعديل وقت غلق الفترات للكل
+//الفترة الاولى
+var fistperiod = 10;
+//الفترة الثانية
+var secondperiod = 14;
+
+// منتجات مخفية اليوم
+var producthidetoday = [210233364];
+
+//-----------اعدادات خاصة------------------
+// قائمة المدن الي يتعدل وقتها
+var cities = [
+ //  "الخبر",
+"الجبيل",
+//  "الدمام",
+ // "الأحساء",
+ // "القطيف",
+ //  "سيهات",
+//"الظهران",
+   //"رأس تنورة",
+ // "صفوى",
+//"Dammam",
+  // "Al Khobar",
+ // "Dhahran",
+// "Al Qatif",
+// "Saihat",
+// "Safwa",
+ //"Riyadh",
+ //"الرياض",
+ //  "Ras Tanura",
+ // "Al Ahsa",
+  "Al Jubail",
+  "Mecca", 
+ "مكة",
+// "جدة",
+// "Jeddah"
+ 
+];
+
+
+// الوقت فيها
+var hidetimecities = new Date().setHours(16, 1, 0, 0);
+//--------------------------------------------------
+
+//  اغلاق الوقت لمدن محددة اليوم
+var cities1 = [
+  { name: ["mecca", "مكة", "jubail", "الجبيل"], mekka: true },
+  { name: ["Saihat","سيهات"], firsttime: true, secondtime: true, thirdtime: true },
+  { name: ["Al Qatif","القطيف"], firsttime: true, secondtime: true, thirdtime: true },
+  { name: ["الظهران","Dhahran"], firsttime: true, secondtime: true, thirdtime: true  },
+  { name: ["Al Khobar","الخبر"], firsttime: true, secondtime: true, thirdtime: true  },
+  { name: ["الأحساء","Al Ahsa"], firsttime: true, secondtime: true, thirdtime: true },
+  { name: ["Jeddah","جدة"], firsttime: true, secondtime: true, thirdtime: true },
+  { name: ["الرياض","Riyadh"], firsttime: true, secondtime: true, thirdtime: true },
+     { name: ["Dammam","الدمام"], firsttime: true, secondtime: true, thirdtime: true  },
+  
+];
+
+var devmode = true;
+
+//decode
+
+// Function to set up the input group
+function setUpInputGroup(
+  fromInput,
+  messageInput,
+  toInput,
+  linkInput,
+  combinedInput
+) {
+  function updateCombinedInput() {
+    var from = fromInput.value;
+    var message = messageInput.value;
+    var to = toInput.value;
+    var link = linkInput.value;
+    message = message.replace(/\n/g, "<br>");
+
+    var combinedValue =
+      'من: "' + from + '"\nالى: "' + to + '"\nالرسالة: "' + message + '"';
+
+    if (link !== "") {
+      combinedValue +=
+        "\nالرابط: https://api.qrserver.com/v1/create-qr-code/?data=" + link;
+    }
+
+    combinedInput.value = combinedValue;
+  }
+
+  fromInput.addEventListener("input", updateCombinedInput);
+  messageInput.addEventListener("input", updateCombinedInput);
+  toInput.addEventListener("input", updateCombinedInput);
+  linkInput.addEventListener("input", updateCombinedInput);
+
+  var combinedValue = combinedInput.value;
+  var matches = combinedValue.match(
+    /من: "(.+)"\nالى: "(.+)"\nالرسالة: "((?:[^"\\]|\\.)+)"(?:\nالرابط: (.+))?/
+  );
+  if (matches) {
+    fromInput.value = matches[1];
+    toInput.value = matches[2];
+    messageInput.value = matches[3].replace(/<br>/g, "\n");
+    linkInput.value = matches[4]
+      ? matches[4].replace(
+          "https://api.qrserver.com/v1/create-qr-code/?data=",
+          ""
+        )
+      : "";
+  }
+}
+
+try {
+  var ratingPercentage24 = document.querySelector(
+    "#app > div.app-inner.flex.flex-col.min-h-full.bg-storeBG > div.container > div.product-single.thumbnails > div > div > div > div.product-single__info.col-lg-5.col-md-12.col-12.lg\\:\\!w-2\\/5.md\\:w-full.w-full.rtl\\:px-2.ltr\\:md\\:pl-\\[15px\\].rtl\\:md\\:px-\\[15px\\].mt-5.sm\\:mt-0 > div.flex.flex-col.space-y-5.mb-5 > div.flex.text-\\[\\#f11e1e\\].flex-grow.shrink-0"
+  );
+
+  if (
+    ratingPercentage24 &&
+    ratingPercentage24.textContent.includes("تم شراءه")
+  ) {
+    var spans = Array.from(ratingPercentage24.querySelectorAll("span"));
+    var foundSpan = spans.find((span) => span.textContent.match(/^\d+$/));
+    var number = foundSpan ? foundSpan.textContent : null;
+    if (number && parseInt(number) < 200) {
+      ratingPercentage24.style.display = "none";
+    }
+  }
+
+  var validValues = ["الجبيل", "مكة", "jubail", "Mecca"];
+  // hide footer
+
+  if (
+    window.location.pathname.split("/").filter(function (segment) {
+      return segment.length > 0;
+    }).length > 1
+  ) {
+    document.querySelector("footer").style.display = "none";
+  } else {
+    // Delete elements with class 's-user-menu-avatar-wrap'
+    var styles = `
+  .s-user-menu-avatar-wrap {
+    display: none;
+  }
+  `;
+    var styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
+
+    new MutationObserver((mutationList, observer) => {
+      var elementlogo = document.querySelector("#trigger-slot > div");
+      if (elementlogo) {
+        observer.disconnect();
+        elementlogo.classList.add("header-btn__icon", "sicon-user");
+      }
+    }).observe(document.body, { childList: true, subtree: true });
+  }
+} catch (e) {}
+
+try {
+  // product-more-info
+  if (window.innerWidth < 641) {
+    document.head.appendChild(document.createElement("style")).innerHTML =
+      ".more-tab-container:nth-child(2) { display: none; }";
+    var productMoreInfo = document.querySelector(".product-more-info.vertical");
+    var productForm = document.querySelector("#product-form");
+    var reviewsElement = document.querySelector('[data-id="reviews"]');
+    var reviewsIdElement = document.querySelector("#reviews");
+
+    if (productMoreInfo && productForm && reviewsElement && reviewsIdElement) {
+      productMoreInfo
+        .querySelector("#details_table")
+        ?.style.setProperty("display", "none");
+      productMoreInfo
+        .querySelector(".more-info-tabs__nav-link.mobile.active")
+        ?.classList.remove("active");
+      productMoreInfo.removeAttribute("style");
+      productForm.parentNode.insertBefore(productMoreInfo, productForm);
+
+      setTimeout(() => {
+        var sectionElement = document.createElement("section");
+        sectionElement.className = "product-more-info vertical";
+        sectionElement.innerHTML = `<div class="product-more-info__inner">
+          <div class="container">
+            <div class="more-info-tabs__content tab-content">
+              <div class="more-tab-container"></div>
+            </div>
+          </div>
+        </div>`;
+        var tabContainerElement = sectionElement.querySelector(
+          ".more-tab-container"
+        );
+        tabContainerElement.appendChild(reviewsElement);
+        tabContainerElement.appendChild(reviewsIdElement);
+        productForm.appendChild(sectionElement);
+      }, 2000);
+    } else {
+      console.log("Error: Required elements not found.");
+    }
+  }
+
+  // move tags
+  var e = document.querySelector(
+      "#app > div.app-inner.flex.flex-col.min-h-full.bg-storeBG > div.container > div.product-single.thumbnails > div > div > div > div.product-single__info.col-lg-5.col-md-12.col-12.lg\\:\\!w-2\\/5.md\\:w-full.w-full.rtl\\:px-2.ltr\\:md\\:pl-\\[15px\\].rtl\\:md\\:px-\\[15px\\].mt-5.sm\\:mt-0 > div.mb-3"
+    ),
+    t = document.querySelector(
+      "#app > div.app-inner.flex.flex-col.min-h-full.bg-storeBG > div.container > div.container.mt-5"
+    );
+  e && t && t.parentNode.insertBefore(e, t);
+} catch (e) {}
+
+// a function to manually check checkboxes
+/*   function setCheckboxValue(checkbox, value) {
+         if (checkbox.checked !== value) {
+           checkbox.click();
+         }
+       } */
+
+
+var date = new Date();
+var currentTime = new Date(
+  date.toLocaleString("en-US", { timeZone: "Asia/Riyadh" })
+);
+
+async function fetchData() {
+  try {
+    var response = await fetch("https://worldtimeapi.org/api/ip");
+    var data = await response.json();
+
+    var apiDate = new Date(data.datetime);
+
+    date = apiDate;
+
+    currentTime = new Date(
+      date.toLocaleString("en-US", { timeZone: "Asia/Riyadh" })
+    );
+  } catch (error) {
+    setTimeout(fetchData, 3000);
+  }
+}
+
+// Initial fetch
+fetchData();
+setInterval(fetchData, 14000); // Synchronize every 30 seconds
+
+
+
+
+
+
+// Function to execute your code logic
+function handleChanges() {
+  // code logic here
+
+
+// hide fractions price
+/* try {
+  var elms = document.querySelectorAll('.total-price, .item-total, .product-card__price, .item-price, .before-price, .text-red-400, [data-cart-total], #sub-total, strong');
+  elms.forEach(function (elm) {
+    var txt = elm.textContent.trim() || elm.getAttribute('data-cart-total');
+    var mtch = /^(\d+(\.\d+)?)\s?(ر\.س|SAR)$/.exec(txt);
+    if (mtch) {
+      var intPart = parseInt(mtch[1]);
+      var curr = mtch[3];
+      elm.textContent = intPart + ' ' + curr;
+    }
+  });
+} catch (e) {}; */
+
+
+  var currentHour = currentTime.getHours();
+  var currentday = currentTime.toISOString().slice(0, 10);
+ // var currentday = "2024-02-17";
+//console.log(currentday)
+
+  // Find all <span> elements
+  var spanElements = document.querySelectorAll("span");
+
+  // Iterate through each <span> element
+  spanElements.forEach((spanElement) => {
+    // Check if the text content is "الأمنيات"
+    if (spanElement.innerText === "الأمنيات") {
+      // Replace the text content with "المفضلة"
+      spanElement.innerHTML = "المفضلة";
+    }
+  });
+
+  // Find all <salla-conditional-fields> elements
+  var conditionalFieldsList = document.querySelectorAll(
+    "salla-conditional-fields"
+  );
+
+  // 21 ta3 lil
+
+  try {
+    var currentcity = cities
+      .map((item) => item.toLowerCase())
+      .includes(salla.config.properties_.store.scope.name.toLowerCase());
+    if (
+      (currentTime > targetTime && !currentcity) ||
+      (currentTime > hidetimecities - 1 && currentcity)
+    ) {
+      var elements = document.querySelectorAll('span[aria-current="date"]');
+      elements.forEach((element) => {
+        element.classList.add("flatpickr-disabled");
+      });
+    }
+  } catch (e) {}
+
+  // Iterate over each <salla-conditional-fields> element
+  conditionalFieldsList.forEach((conditionalFields) => {
+    // Find all <s-product-options-option> elements within the current <salla-conditional-fields> element
+
+    var productOptions = conditionalFields.querySelectorAll(
+      ".s-product-options-option"
+    );
+    var parentDiv = conditionalFields.parentNode.getAttribute("product-id");
+
+    if (producthidetoday.includes(parseInt(parentDiv))) {
+      var elements = document.querySelectorAll('span[aria-current="date"]');
+      elements.forEach((element) => {
+        element.classList.add("flatpickr-disabled");
+      });
+    }
+
+    // Initialize variables to track the presence of 'يوم التوصيل' and its value
+    var hasDeliveryDay = false;
+    var deliveryDayValue = "";
+
+    // Iterate over each <s-product-options-option> element
+    productOptions.forEach((productOption) => {
+      // Find the label element within the current <s-product-options-option> element
+      var label = productOption.querySelector(
+        ".s-product-options-option-label"
+      );
+
+      // Check if the label text matches the desired text for 'يوم التوصيل'
+      if (
+        label &&
+        (label.innerText.includes("يوم التوصيل") ||
+          label.innerText.includes("Delivery day") ||
+          label.innerText.includes("Delivery date") ||
+          label.innerText.includes("تاريخ التوصيل") ||
+          label.innerText.includes("تاريخ الاستلام"))
+      ) {
+        // Find the <salla-datetime-picker> element within the current <s-product-options-option> element
+        var datetimePicker = productOption.querySelector(
+          "salla-datetime-picker"
+        );
+
+        if (datetimePicker) {
+          // Set the variables to indicate the presence of 'يوم التوصيل' and its value
+          hasDeliveryDay = true;
+          deliveryDayValue = datetimePicker.getAttribute("value");
+        }
+      }
+
+      if (
+        label.innerText.includes("هنا إذا عندك QR code إهداء ارفق الصورة") ||
+        label.innerText.includes("اذا عندك QR code إهداء ارفق الصورة")
+      ) {
+        productOption.style.display = "none";
+      }
+
+      if (devmode === true) {
+
+        try{
+        // Check if the label text matches the desired text for 'عبر عن مشاعرك'
+        if (label.innerText.includes("cakeproduct")) {
+          productOption.querySelector("div > label > small").style.fontSize =
+            "0";
+
+          var elements = document.querySelectorAll('span[aria-current="date"]');
+          elements.forEach((element) => {
+            element.classList.add("flatpickr-disabled");
+          });
+
+          if (currentHour > 22) {
+            var elements = document.querySelectorAll(
+              'span[aria-current="date"]'
+            );
+            elements.forEach((element) => {
+              var nextElement = element.nextElementSibling;
+              if (nextElement) {
+                nextElement.classList.add("flatpickr-disabled");
+              }
+            });
+          }
+        }
+
+        if (
+          label.innerText.includes("رسالتك للمستلم") ||
+          label.innerText.includes("message to the recipient")
+        ) {
+          // Find the <textarea> element within the current <s-product-options-option> element
+          var textarea = productOption.querySelector("textarea");
+
+          if (textarea && textarea.style.display !== "none") {
+            // Hide the textarea element
+            var sameid = textarea.getAttribute("id");
+            var combinedInput = textarea;
+            textarea.style.display = "none";
+
+            var fromInput = document.createElement("input");
+            fromInput.type = "text";
+            fromInput.id = "fromInput";
+            fromInput.classList.add("s-form-control");
+            fromInput.placeholder = "من";
+            textarea.parentNode.insertBefore(fromInput, textarea.nextSibling);
+
+            var messageInput = document.createElement("textarea");
+            messageInput.type = "text";
+            messageInput.id = "messageInput";
+            messageInput.classList.add("s-form-control");
+            messageInput.placeholder = "رسالتك للمستلم";
+            textarea.parentNode.insertBefore(
+              messageInput,
+              textarea.nextSibling
+            );
+
+            // Create and append the sibling input elements
+            var toInput = document.createElement("input");
+            toInput.type = "text";
+            toInput.id = "toInput";
+            toInput.classList.add("s-form-control");
+            toInput.placeholder = "الى";
+            textarea.parentNode.insertBefore(toInput, textarea.nextSibling);
+
+            var htmlCode = `
+                <div class="s-product-options-option-container">
+                  <div class="s-product-options-option">
+                    <label class="s-product-options-option-label">
+                      <b>عبر عن مشاعرك </b>
+                    </label>
+                    <div class="s-product-options-option-content">
+                      <div class="s-product-options-text">
+                        <input type="text" class="s-form-control" placeholder="هنا إذا عندك QR code. إهداء" data-form-type="other">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+
+            var newElement = document.createElement("div");
+            newElement.innerHTML = htmlCode.trim();
+            var linkInput = newElement.querySelector("input.s-form-control");
+
+            productOption.parentNode.insertAdjacentElement(
+              "afterend",
+              newElement.firstChild
+            );
+            setUpInputGroup(
+              fromInput,
+              messageInput,
+              toInput,
+              linkInput,
+              combinedInput
+            );
+
+            // Add QR code container
+            var qrCodeContainer = document.createElement("div");
+            qrCodeContainer.className = "qr-code-container";
+
+            // Create QR code image element
+            var qrCodeImg = document.createElement("img");
+            qrCodeImg.className = "qr-code-img";
+
+            // Append QR code image to the container
+            qrCodeContainer.appendChild(qrCodeImg);
+
+            // Append the QR code container after the input field
+            linkInput.parentNode.appendChild(qrCodeContainer);
+
+            // Update QR code when input value changes
+            linkInput.addEventListener("input", updateQRCode);
+
+            function updateQRCode() {
+              var value = linkInput.value.trim();
+              if (value === "") {
+                qrCodeImg.src = ""; // Clear the QR code image source if input is empty
+              } else {
+                qrCodeImg.src =
+                  "https://api.qrserver.com/v1/create-qr-code/?data=" +
+                  encodeURIComponent(value);
+              }
+            }
+
+            // Trigger initial update
+            updateQRCode();
+          }
+        }
+          
+          }catch(e){
+          
+          }
+
+      }
+
+      // Check if the label text matches thedesired text
+      if (label.innerText.includes("من إختيارك")) {
+        // Hide the parent div element || label.innerText.includes('إختيار إضافي') || label.innerText.includes('optional extra')
+        var parentDiv = label.closest("div");
+        if (parentDiv) {
+          parentDiv.style.display = "none";
+        }
+      }
+
+      var sections = document.querySelectorAll("section");
+
+      sections.forEach((section) => {
+        var sallaSlider = section.querySelector("salla-slider");
+        var offerSlider = section.querySelector("#offer-slider");
+
+        if (sallaSlider && offerSlider) {
+          section.style.display = "none";
+        }
+      });
+
+      // Check if the label text matches the desired text for 'وقت التوصيل'
+      if (
+        (label &&
+          (label.innerText.includes("وقت التوصيل") ||
+            label.innerText.includes("Delivery time") ||
+            label.innerText.includes("وقت الاستلام"))) ||
+        label.innerText.includes("موعد التوصيل")
+      ) {
+        // Find the checkboxes within the multiple options wrapper
+        var checkboxes = productOption.querySelectorAll(
+          '.s-product-options-multiple-options-wrapper input[type="checkbox"]'
+        );
+        var date1 = new Date(deliveryDayValue);
+
+
+        if (validValues.includes(salla.config.properties_.store.scope.name)) {
+          [0, 1].forEach(
+            (index) => (checkboxes[index].parentNode.style.display = "none")
+          );
+        } else {
+          checkboxes[2].parentNode.style.display = "none";
+        }
+        if (deliveryDayValue !== currentday || currentHour < meccatime - 1) {
+          checkboxes[2].disabled = false;
+        }
+
+        if (deliveryDayValue === currentday) {
+          var cityWithName = cities1.find((city1) =>
+            city1.name.some((name) =>
+              name.includes(
+                salla.config.properties_.store.scope.name.toLowerCase()
+              )
+            )
+          );
+
+          if (cityWithName && !cityWithName.mekka) {
+            checkboxes[2].disabled = true;
+            checkboxes[2].checked = false;
+          }
+          if (cityWithName && !cityWithName.firsttime) {
+            checkboxes[0].disabled = true;
+            checkboxes[0].checked = false;
+          }
+
+          if (cityWithName && !cityWithName.secondtime) {
+            checkboxes[1].disabled = true;
+            checkboxes[1].checked = false;
+          }
+
+
+          if (currentHour > meccatime - 1) {
+            // Hide the first child element
+            checkboxes[2].disabled = true;
+            checkboxes[2].checked = false;
+          }
+
+          // Check if it's 10am
+          if (currentHour > fistperiod - 1) {
+            // Hide the first child element
+            checkboxes[0].disabled = true;
+            checkboxes[0].checked = false;
+          }
+          // Check if it's between 11pm and 1pm (13:00)
+          if (currentHour > secondperiod - 1) {
+            // Hide the second child element
+            checkboxes[1].disabled = true;
+            checkboxes[1].checked = false;
+          }
+
+
+        }
+        if (deliveryDayValue !== currentday && date1.getDay() !== 5) {
+          checkboxes[0].disabled = false;
+        }
+
+        if (deliveryDayValue !== currentday) {
+          checkboxes[1].disabled = false;
+        }
+      }
+    });
+  });
+}
+
+function debounce(func, delay) {
+  var timer;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(func, delay);
+  };
+}
+
+// Event listener to detect changes using MutationObserver
+var observer = new MutationObserver((mutationsList) => {
+  // Iterate over the mutations
+  for (var mutation of mutationsList) {
+    // Check if the mutation is an added node (new <salla-conditional-fields> element)
+    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+      // Execute the code logic when a new <salla-conditional-fields> element appears
+      handleChanges();
+    }
+  }
+});
+
+// Configure and start the MutationObserver
+var observerConfig = {
+  childList: true, // Watch for changes in the children of the target node
+  subtree: true, // Watch for changes in the entire subtree of the target node
+};
+
+observer.observe(document.body, observerConfig);
+
+// Timer to periodically check for changes
+setInterval(handleChanges, 1000);
+
+var successLogged = false;
+var html = `
+  <salla-tabs >
+    <!-- Tab One -->
+    <salla-tab-header slot="header" name="tab_one"><span>شوكلت</span></salla-tab-header>
+    <salla-tab-content slot="content" name="tab_one">
+      <salla-products-slider
+        source="selected"
+        source-value="${JSON.stringify(chocolate)}"
+        product-card-component="salla-product-card"
+        slider-id="chocolate">
+      </salla-products-slider>
+    </salla-tab-content>
+    
+    
+       <!-- Tab Two -->
+    <salla-tab-header slot="header" name="tab_two"><span>كيك</span></salla-tab-header>
+    <salla-tab-content slot="content" name="tab_two">
+      <salla-products-slider
+        source="selected"
+        source-value="${JSON.stringify(cakes)}"
+        product-card-component="salla-product-card"
+        slider-id="cakes">
+      </salla-products-slider>
+    </salla-tab-content>
+    
+    
+    
+    <!-- Tab Three -->
+    <salla-tab-header slot="header" name="tab_three"><span>عطور</span></salla-tab-header>
+    <salla-tab-content slot="content" name="tab_three">
+      <salla-products-slider
+        source="selected"
+        source-value="${JSON.stringify(perfume)}"
+        product-card-component="salla-product-card"
+        slider-id="perfume">
+      </salla-products-slider>
+    </salla-tab-content>
+
+    <!-- Tab Four -->
+    <salla-tab-header slot="header" name="tab_four"><span>كروت</span></salla-tab-header>
+    <salla-tab-content slot="content" name="tab_four">
+      <salla-products-slider
+        source="selected"
+        source-value="${JSON.stringify(cards)}"
+        product-card-component="salla-product-card"
+        slider-id="cards">
+      </salla-products-slider>
+    </salla-tab-content>
+  </salla-tabs>
+`;
+
+var element7 = document.createElement("div");
+element7.innerHTML = html;
+document.body.appendChild(element7);
+element7.style.display = "none";
+
+function logSuccess() {
+  if (!successLogged) {
+    successLogged = true;
+    var slider = document.getElementById("offer-modal-slider");
+    if (slider) {
+      slider.innerHTML = "";
+      element7.style.display = "block";
+      slider.parentNode.replaceChild(element7, slider);
+    }
+  }
+}
+
+function observeDOM() {
+  var targetNode = document.body;
+  var config = { childList: true, subtree: true };
+
+  var callback = function (mutationsList, domObserver) {
+    var elements = document.querySelectorAll(".s-modal-sub-title");
+    for (var mutation of mutationsList) {
+      if (mutation.type === "childList") {
+        for (var element of elements) {
+          if (element.textContent.trim() === "أضف منتج من إختيارك") {
+            logSuccess();
+            domObserver.disconnect();
+            return; // Exit the loop after finding the element
+          }
+        }
+      }
+    }
+  };
+
+  var domObserver = new MutationObserver(callback);
+  domObserver.observe(targetNode, config);
+}
+
+observeDOM();
